@@ -1,0 +1,81 @@
+{
+  "name": "thefrosty/wp-block-ai-scrapers",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "description": "Crain core WordPress plugins and shared code.",
+  "authors": [
+    {
+      "name": "Austin Passy",
+      "homepage": "https://github.com/thefrosty"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/thefrosty/wp-block-ai-scrapers/issues"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/*": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true,
+      "roots/wordpress-core-installer": true
+    },
+    "discard-changes": true,
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "8.1"
+    },
+    "preferred-install": {
+      "*": "dist"
+    },
+    "process-timeout": 600,
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^8.1",
+    "composer/installers": "~2.0",
+    "pimple/pimple": "^3.2",
+    "symfony/http-foundation": "~6.0 || ~7.0",
+    "thefrosty/wp-utilities": "^3.3"
+  },
+  "require-dev": {
+    "ext-xdebug": "*",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "php-stubs/wordpress-stubs": "~6.2",
+    "phpcompatibility/php-compatibility": "^9.3",
+    "phpstan/extension-installer": "^1.2",
+    "roots/wordpress": "^6.2",
+    "slevomat/coding-standard": "^8.8",
+    "squizlabs/php_codesniffer": "^3.7",
+    "symfony/var-dumper": "^6.4",
+    "szepeviktor/phpstan-wordpress": "^1.1",
+    "vimeo/psalm": "^5.6",
+    "wp-coding-standards/wpcs": "dev-develop"
+  },
+  "autoload": {
+    "psr-4": {
+      "TheFrosty\\WpBlockAiScrapers\\": "src"
+    }
+  },
+  "autoload-dev": {
+  },
+  "scripts": {
+    "install-codestandards": [
+      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
+    ],
+    "post-install-cmd": [
+      "[ $COMPOSER_DEV_MODE -eq 0 ] || @install-codestandards"
+    ],
+    "phpcs": [
+      "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh"
+    ],
+    "phpmd": [
+      "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh"
+    ],
+    "psalm": [
+      "bash ./vendor/thefrosty/wp-utilities/bin/psalm.sh"
+    ],
+    "tests": [
+      "@phpcs"
+    ]
+  }
+}
