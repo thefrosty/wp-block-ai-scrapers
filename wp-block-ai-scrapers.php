@@ -21,16 +21,21 @@ defined('ABSPATH') || exit;
 use Pimple\Container;
 use TheFrosty\WpBlockAiScrapers\Api\Htaccess;
 use TheFrosty\WpBlockAiScrapers\Api\RobotsTxt;
+use TheFrosty\WpBlockAiScrapers\Http\DarkVisitors;
 use TheFrosty\WpBlockAiScrapers\WpAdmin\Cron;
 use TheFrosty\WpBlockAiScrapers\WpAdmin\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use UnexpectedValueException;
+use function class_exists;
 use function defined;
+use function delete_transient;
+use function error_log;
 use function is_readable;
 use function register_activation_hook;
 use function register_deactivation_hook;
 use function wp_schedule_single_event;
 use function wp_unschedule_event;
+use const WP_DEBUG;
 
 if (is_readable(__DIR__ . '/vendor/autoload.php')) {
     include_once __DIR__ . '/vendor/autoload.php';
@@ -58,14 +63,22 @@ $plugin
 
 register_activation_hook(
     __FILE__,
-    static function () {
+    static function (): void {
         wp_schedule_single_event(time(), Cron::HOOK);
     }
 );
 
 register_deactivation_hook(
     __FILE__,
-    static function () {
+    static function (): void {
+        if (!is_readable(__DIR__ . '/vendor/autoload.php') || !class_exists(DarkVisitors::class)) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('The Block Ai Scrapers plugin could not run proper deactivation hook.');
+            }
+            return;
+        }
+        include_once __DIR__ . '/vendor/autoload.php';
+        delete_transient((new DarkVisitors())->getKey());
         wp_unschedule_event(time(), Cron::HOOK);
     }
 );
