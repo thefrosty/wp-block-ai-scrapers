@@ -4,9 +4,9 @@
  * Description: A simple way to block AI Scraper bots in your WordPress' <code>.htaccess</code>, <code>nginx</code>, or <code>robots.txt</code> file! A <a href="https://frosty.media/">Frosty Media</a> plugin.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 6.2
- * Tested up to: 6.4.4
+ * Tested up to: 6.5
  * Requires PHP: 8.1
  * Plugin URI: https://github.com/thefrosty/wp-block-ai-scrapers
  * GitHub Plugin URI: https://github.com/thefrosty/wp-block-ai-scrapers
