@@ -47,7 +47,13 @@ $plugin
     ->add(new Cron())
     ->addOnHook(Htaccess::class, 'admin_init')
     ->addOnHook(RobotsTxt::class, 'admin_init')
-    ->addOnHook(Settings::class, 'init', admin_only: true, args: [$container])
+    ->addOnConditionDeferred(
+        wp_hook: Settings::class,
+        function: fn() => current_user_can('activate_plugins'),
+        tag: 'init',
+        admin_only: true,
+        args: [$container]
+    )
     ->initialize();
 
 register_activation_hook(
