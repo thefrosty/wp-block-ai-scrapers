@@ -17,7 +17,7 @@ use function libxml_use_internal_errors;
 use function method_exists;
 use function time;
 use function wp_remote_retrieve_body;
-use const MINUTE_IN_SECONDS;
+use const DAY_IN_SECONDS;
 use const MONTH_IN_SECONDS;
 
 /**
@@ -37,27 +37,29 @@ class DarkVisitors implements Agents
 
     /**
      * Update the Agents transient cache.
+     * @param bool $force
      * @return void
      */
-    public function updateCache(): void
+    public function updateCache(bool $force = false): void
     {
         $key = $this->getKey();
         $timeout = !method_exists($this, 'getTransientTimeout') ? null : $this->getTransientTimeout($key);
-        if ($timeout && time() - $timeout > MINUTE_IN_SECONDS) {
+        if ($force || $timeout && time() - $timeout > DAY_IN_SECONDS) {
             delete_transient($key);
         }
-        $this->getAgents();
+        $this->getAgents($force);
     }
 
     /**
      * Get the Agents from cache.
+     * @param bool $force
      * @return mixed
      */
-    public function getAgents(): mixed
+    public function getAgents(bool $force = false): mixed
     {
         $key = $this->getKey();
         $body = $this->getTransient($key);
-        if (empty($body)) {
+        if ($force || empty($body)) {
             $body = wp_remote_retrieve_body($this->wpRemoteGet(self::AGENTS_URL));
             if ($body !== '') {
                 $body = $this->encrypt($body, self::ENCRYPTION_KEY);

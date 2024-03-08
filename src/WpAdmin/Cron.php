@@ -6,6 +6,7 @@ namespace TheFrosty\WpBlockAiScrapers\WpAdmin;
 
 use TheFrosty\WpBlockAiScrapers\Http\DarkVisitors;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
+use function add_action;
 use function wp_next_scheduled;
 use function wp_schedule_event;
 
@@ -35,7 +36,7 @@ class Cron extends AbstractHookProvider
     protected function scheduleEvent(): void
     {
         if (!wp_next_scheduled(self::HOOK)) {
-            wp_schedule_event(time(), 'weekly', self::HOOK);
+            wp_schedule_event(time(), 'daily', self::HOOK);
         }
     }
 
@@ -45,7 +46,8 @@ class Cron extends AbstractHookProvider
      */
     protected function runner(): void
     {
-        error_log(date(\DateTime::COOKIE) . 'Running trigger CRON');
-        (new DarkVisitors())->updateCache();
+        add_action('shutdown', static function(): void {
+            (new DarkVisitors())->updateCache();
+        });
     }
 }

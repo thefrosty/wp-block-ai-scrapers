@@ -22,12 +22,15 @@ use function current_user_can;
 use function date;
 use function esc_attr__;
 use function esc_html__;
+use function explode;
 use function human_time_diff;
 use function is_string;
 use function method_exists;
 use function parse_url;
+use function remove_query_arg;
 use function sprintf;
 use function str_contains;
+use function str_replace;
 use function wp_send_json_error;
 use function wp_send_json_success;
 use const PHP_URL_QUERY;
@@ -41,7 +44,8 @@ class Settings extends AbstractContainerProvider implements HttpFoundationReques
 
     use HttpFoundationRequestTrait, Viewable;
 
-    final public const ACTION = 'wpBlockAiScrapersCode';
+    final public const ACTION_RETRIEVE = 'wpBlockAiScrapersCode';
+    final public const ACTION_CACHE = 'wpBlockAiScrapersCache';
 
     /**
      * Add class hooks.
@@ -53,7 +57,8 @@ class Settings extends AbstractContainerProvider implements HttpFoundationReques
         $this->addFilter('plugin_action_links_' . $this->getPlugin()->getBasename(), [$this, 'pluginActionLinks']);
         $this->addFilter('plugin_row_meta', [$this, 'pluginRowMeta'], 10, 2);
         $this->addFilter('after_plugin_row_' . $this->getPlugin()->getBasename(), [$this, 'afterPluginRow']);
-        $this->addAction('wp_ajax_' . self::ACTION, [$this, 'ajax']);
+        $this->addAction('wp_ajax_' . self::ACTION_RETRIEVE, [$this, 'ajaxRetrieveContent']);
+        $this->addAction('admin_post_' . self::ACTION_CACHE, [$this, 'maybeRefreshCache']);
     }
 
     /**
@@ -77,6 +82,10 @@ class Settings extends AbstractContainerProvider implements HttpFoundationReques
      */
     protected function pluginActionLinks(array $actions): array
     {
+        if (!$this->currentUserHasAccess()) {
+            return $actions;
+        }
+
         array_unshift(
             $actions,
             sprintf(
@@ -98,7 +107,7 @@ onclick="document.getElementById(\'block-ai-scrapers\').classList.toggle(\'hidde
      */
     protected function pluginRowMeta(array $meta, string $file): array
     {
-        if ($file !== $this->getPlugin()->getBasename()) {
+        if ($file !== $this->getPlugin()->getBasename() || !$this->currentUserHasAccess()) {
             return $meta;
         }
 
@@ -106,16 +115,29 @@ onclick="document.getElementById(\'block-ai-scrapers\').classList.toggle(\'hidde
         $timeout = !method_exists($visitors, 'getTransientTimeout') ? null :
             $visitors->getTransientTimeout($visitors->getKey());
         if ($timeout) {
-            $title = 'Refresh';
+            $title = esc_html__('Refresh cache', 'wp-block-ai-scrapers');
             $meta[] = sprintf(
-                'Cache expires in <strong><time datetime="%2$s" title="%2$s">%1$s</time></strong>',
-                human_time_diff($timeout),
-                date('Y-m-d H:i:s', $timeout)
+                esc_html__('Cache expires in %s', 'wp-block-ai-scrapers'),
+                sprintf(
+                    '<strong><time datetime="%2$s" title="%2$s">%1$s</time></strong>',
+                    human_time_diff($timeout),
+                    date('Y-m-d H:i:s', $timeout)
+                )
             );
         }
         $meta[] = sprintf(
-            '%s cache',
-            $title ?? 'Update',
+            '<a href="%1$s">%2$s</a>',
+            wp_nonce_url(
+                add_query_arg(
+                    [
+                        'action' => self::ACTION_CACHE,
+                        'force' => isset($title) ? 'refresh' : 'update',
+                    ],
+                    admin_url('admin-post.php')
+                ),
+                self::ACTION_CACHE,
+            ),
+            $title ?? esc_html__('Update cache', 'wp-block-ai-scrapers')
         );
 
         return $meta;
@@ -128,12 +150,13 @@ onclick="document.getElementById(\'block-ai-scrapers\').classList.toggle(\'hidde
      */
     protected function afterPluginRow(string $plugin_file): void
     {
-        if (!current_user_can('activate_plugins')) {
+        if (!$this->currentUserHasAccess()) {
             return;
         }
 
+        $plugin = str_replace('wp-', '', explode('/', $plugin_file)[0]);
         $query = parse_url($this->getRequest()->server->get('REQUEST_URI', ''), PHP_URL_QUERY);
-        $class = is_string($query) && str_contains($plugin_file, $query) ? '' : 'hidden';
+        $class = is_string($query) && str_contains($query, $plugin) ? '' : 'hidden';
 
         $view = $this->getView(ServiceProvider::WP_UTILITIES_VIEW);
         $view->render('plugins/after-plugin-row', [
@@ -143,15 +166,16 @@ onclick="document.getElementById(\'block-ai-scrapers\').classList.toggle(\'hidde
     }
 
     /**
-     * AJAX callback.
+     * AJAX callback to retrieve the contents.
      * @return void
      */
-    protected function ajax(): void
+    protected function ajaxRetrieveContent(): void
     {
         $request = $this->getRequest()->request;
         if (
-            !$request->has('action') || $request->get('action') !== self::ACTION ||
-            !check_ajax_referer(self::ACTION, 'nonce', false)
+            !$this->currentUserHasAccess() ||
+            !$request->has('action') || $request->get('action') !== self::ACTION_RETRIEVE ||
+            !check_ajax_referer(self::ACTION_RETRIEVE, 'nonce', false)
         ) {
             wp_send_json_error(new WP_Error('bad_request', 'Bad request, or nonce.'));
         }
@@ -167,5 +191,40 @@ onclick="document.getElementById(\'block-ai-scrapers\').classList.toggle(\'hidde
         }
 
         wp_send_json_error();
+    }
+
+    /**
+     * Maybe refresh the transient cache.
+     * @return never
+     */
+    protected function maybeRefreshCache(): never
+    {
+        $query = $this->getRequest()->query;
+        $referer = !wp_get_referer() ? admin_url('plugins.php') : remove_query_arg('success', wp_get_referer());
+        if (
+            !$this->currentUserHasAccess() ||
+            !$query->has('action') || $query->get('action') !== self::ACTION_CACHE ||
+            !$query->has('force') ||
+            !$query->has('_wpnonce') ||
+            !wp_verify_nonce($query->get('_wpnonce'), self::ACTION_CACHE)
+        ) {
+            wp_safe_redirect(add_query_arg('success', 'false', $referer));
+            exit;
+        }
+
+        $force = $query->get('force') === 'refresh';
+        (new DarkVisitors())->updateCache($force);
+
+        wp_safe_redirect($referer);
+        exit;
+    }
+
+    /**
+     * Can the current user `activate_plugins`?
+     * @return bool
+     */
+    private function currentUserHasAccess(): bool
+    {
+        return current_user_can('activate_plugins');
     }
 }
