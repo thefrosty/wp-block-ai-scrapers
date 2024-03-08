@@ -32,6 +32,7 @@
   },
   "require": {
     "php": "^8.1",
+    "ext-dom": "*",
     "composer/installers": "~2.0",
     "pimple/pimple": "^3.2",
     "symfony/http-foundation": "~6.0 || ~7.0",
