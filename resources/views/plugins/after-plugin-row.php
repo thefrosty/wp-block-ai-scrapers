@@ -53,14 +53,16 @@ $writeLinks = [
 <script defer>
   document.addEventListener('DOMContentLoaded', () => {
       const element = document.getElementById('block-ai-scrapers-settings')
+      const img = document.getElementById('block-ai-spinner')
       const links = document.querySelectorAll('a[data-file]')
       links.forEach((link) => {
         link.addEventListener('click', function (e) {
             element.style.width = `${element.parentElement.offsetWidth}px`
+            img.classList.remove('hidden')
             const request = wp.ajax.post({
-              action: '<?php echo Settings::ACTION; ?>',
+              action: '<?php echo Settings::ACTION_RETRIEVE; ?>',
               file: this.dataset.file.toString(),
-              nonce: '<?php echo wp_create_nonce(Settings::ACTION); ?>'
+              nonce: '<?php echo wp_create_nonce(Settings::ACTION_RETRIEVE); ?>'
             })
 
             request.done(function (response) {
@@ -68,6 +70,7 @@ $writeLinks = [
                 element.replaceChildren()
                 element.innerHTML = `<pre style="padding:7px;overflow:auto;border:1px solid #c3c4c7;">${response}</pre>`
                 element.classList.remove('hidden')
+                img.classList.add('hidden')
               }
             })
 
@@ -78,8 +81,10 @@ $writeLinks = [
     }
   )
 </script>
-<tr id="block-ai-scrapers" class="inactive <?php echo $class; ?>">
-    <th>&nbsp;</th>
+<tr id="block-ai-scrapers" class="inactive <?php
+echo $class; ?>">
+    <th><img id="block-ai-spinner" src="<?php
+        echo admin_url('/images/spinner-2x.gif'); ?>" alt="" class="hidden" loading="lazy" width="20px"></th>
     <td class="plugin-title column-primary">
         <strong><?php
             esc_html_e('Show code', 'wp-block-ai-scrapers'); ?></strong>
