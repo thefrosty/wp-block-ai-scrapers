@@ -38,3 +38,5 @@ Then run:
 Or, run:
 
 `$ composer require thefrosty/wp-block-ai-scrapers:^1.0`
+
+Inspired by https://github.com/jackmcconnell/no-ai-scrapers
