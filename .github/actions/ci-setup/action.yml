@@ -48,6 +48,17 @@ runs:
         extensions: ${{ inputs.extensions }}
         tools: ${{ inputs.tools }}
 
+    - name: Composer config
+      run: |
+        composer config github-oauth.github.com "${{ env.GITHUB_TOKEN }}"
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+      shell: bash
+
+    - name: Composer update
+      run: composer update --no-interaction --optimize-autoloader
+      shell: bash
+
     - name: Get Changed Files
       id: files
       uses: masesgroup/retrieve-changed-files@v3
