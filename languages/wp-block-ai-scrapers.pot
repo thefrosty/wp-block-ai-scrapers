@@ -1,0 +1,115 @@
+# Copyright (C) 2024 Austin Passy
+# This file is distributed under the same license as the Block Ai Scrapers plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Block Ai Scrapers 1.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-block-ai-scrapers\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-03-14T20:19:25+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: wp-block-ai-scrapers\n"
+
+#. Plugin Name of the plugin
+#: wp-block-ai-scrapers.php
+msgid "Block Ai Scrapers"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-block-ai-scrapers.php
+msgid "https://github.com/thefrosty/wp-block-ai-scrapers"
+msgstr ""
+
+#. Description of the plugin
+#: wp-block-ai-scrapers.php
+msgid "A simple way to block AI Scraper bots in your WordPress' <code>.htaccess</code>, <code>nginx</code>, or <code>robots.txt</code> file! A <a href=\"https://frosty.media/\">Frosty Media</a> plugin."
+msgstr ""
+
+#. Author of the plugin
+#: wp-block-ai-scrapers.php
+msgid "Austin Passy"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp-block-ai-scrapers.php
+msgid "https://github.com/thefrosty"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:17
+msgid "Show the .htaccess code"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:18
+#: resources/views/plugins/after-plugin-row.php:42
+msgid ".htaccess"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:24
+msgid "Show the Nginx code"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:25
+msgid "Nginx"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:31
+msgid "Show the robots.txt code"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:32
+#: resources/views/plugins/after-plugin-row.php:48
+msgid "robots.txt"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:41
+msgid "Write to the .htaccess file"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:47
+msgid "Write to the robots.txt file"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:90
+msgid "Show code"
+msgstr ""
+
+#: resources/views/plugins/after-plugin-row.php:99
+msgid "Write code to file"
+msgstr ""
+
+#: src/WpAdmin/Settings.php:71
+#: src/WpAdmin/Settings.php:72
+msgid "Block AI Scrapers"
+msgstr ""
+
+#: src/WpAdmin/Settings.php:94
+msgid "Show the plugin settings"
+msgstr ""
+
+#: src/WpAdmin/Settings.php:95
+msgid "Settings"
+msgstr ""
+
+#: src/WpAdmin/Settings.php:118
+msgid "Refresh cache"
+msgstr ""
+
+#: src/WpAdmin/Settings.php:120
+msgid "Cache expires in %s"
+msgstr ""
+
+#: src/WpAdmin/Settings.php:140
+msgid "Update cache"
+msgstr ""
+
+#: wp-block-ai-scrapers.php:68
+msgid "Notice: WP Block AI Scrapers requires PHP version >= 8.1, you are running %s, all features are currently disabled."
+msgstr ""
+
+#: wp-block-ai-scrapers.php:77
+msgid "Error: WP Block AI Scrapers can't find the autoload file (if installed from GitHub, please run `composer install`), all features are currently disabled."
+msgstr ""
