@@ -13,6 +13,9 @@ inputs:
   php-version:
     description: 'The PHP version to be setup'
     required: true
+  token:
+    description: 'A GitHub PAT'
+    required: true
   tools:
     default: 'composer'
     description: 'shivammathur/setup-php tools'
