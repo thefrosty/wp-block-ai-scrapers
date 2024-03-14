@@ -26,16 +26,60 @@ use TheFrosty\WpBlockAiScrapers\WpAdmin\Cron;
 use TheFrosty\WpBlockAiScrapers\WpAdmin\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use UnexpectedValueException;
+use function add_action;
+use function add_filter;
+use function apply_filters;
 use function class_exists;
 use function defined;
 use function delete_transient;
+use function dirname;
 use function error_log;
+use function esc_html__;
+use function is_admin;
 use function is_readable;
+use function load_plugin_textdomain;
+use function plugin_basename;
 use function register_activation_hook;
 use function register_deactivation_hook;
+use function sprintf;
+use function wp_kses_post;
 use function wp_schedule_single_event;
 use function wp_unschedule_event;
+use function wpautop;
+use const PHP_VERSION;
 use const WP_DEBUG;
+
+/**
+ * Maybe trigger an error notice "message" on the `admin_notices` action hook.
+ * Uses an anonymous function which required PHP >= 5.3.
+ */
+add_action('admin_notices', static function (): void {
+    $message = apply_filters('block_ai_scrapers_shutdown_error_message', '');
+    if (!is_admin() || empty($message)) {
+        return;
+    }
+    load_plugin_textdomain('wp-block-ai-scrapers', false, dirname(plugin_basename(__FILE__)) . '/languages/');
+    echo wp_kses_post(sprintf('<div class="error">%s</div>', wpautop($message)));
+});
+
+if (version_compare(PHP_VERSION, '8.1', '<')) {
+    return add_filter('block_ai_scrapers_shutdown_error_message', static function (): string {
+        return sprintf(
+            esc_html__(
+                'Notice: WP Block AI Scrapers requires PHP version >= 8.1, you are running %s, all features are currently disabled.',
+                'wp-block-ai-scrapers'
+            ),
+            PHP_VERSION
+        );
+    });
+} elseif (!is_readable(__DIR__ . '/vendor/autoload.php') && !class_exists(PluginFactory::class)) {
+    return add_filter('block_ai_scrapers_shutdown_error_message', static function (): string {
+        return esc_html__(
+            'Error: WP Block AI Scrapers can\'t find the autoload file (if installed from GitHub, please run `composer install`), all features are currently disabled.',
+            'wp-block-ai-scrapers'
+        );
+    });
+}
 
 if (is_readable(__DIR__ . '/vendor/autoload.php')) {
     include_once __DIR__ . '/vendor/autoload.php';

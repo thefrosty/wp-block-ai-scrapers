@@ -72,6 +72,9 @@
     "phpmd": [
       "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh"
     ],
+    "phpstan": [
+      "bash ./vendor/thefrosty/wp-utilities/bin/phpstan.sh"
+    ],
     "psalm": [
       "bash ./vendor/thefrosty/wp-utilities/bin/psalm.sh"
     ],

@@ -38,7 +38,6 @@ jobs:
           extensions: 'curl'
           extensions-cache-key: run-phpcs
           php-version: ${{ env.PHP_VERSION }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           tools: 'composer, cs2pr, phpcs'
 
       - name: Run Phpcs
@@ -66,7 +65,6 @@ jobs:
           extensions: 'curl'
           extensions-cache-key: run-phpstan
           php-version: ${{ env.PHP_VERSION }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           tools: 'composer, phpstan'
 
       - name: Run PHPStan
@@ -91,7 +89,6 @@ jobs:
           extensions: 'curl'
           extensions-cache-key: run-psalm
           php-version: ${{ env.PHP_VERSION }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           tools: 'composer, psalm'
 
       - name: Run Psalm
@@ -129,7 +126,6 @@ jobs:
           extensions: 'curl, mysql, mysqli, zip'
           extensions-cache-key: run-phpunit
           php-version: ${{ env.PHP_VERSION }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           tools: 'composer, phpunit'
 
       - name: Run PHPUnit
