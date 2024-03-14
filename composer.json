@@ -39,7 +39,6 @@
     "thefrosty/wp-utilities": "^3.3"
   },
   "require-dev": {
-    "ext-xdebug": "*",
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
     "php-stubs/wordpress-stubs": "~6.2",
     "phpcompatibility/php-compatibility": "^9.3",
